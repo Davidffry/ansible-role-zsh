@@ -32,5 +32,10 @@
     - name: "Manage plugins"
       lineinfile:
         path: ~/.zshrc
-        line: plugins=(git kubectl) 
-        insertafter: '^# Add wisely, as too many plugins slow down shell startup.'
+        line: "{{item.l}}" 
+        insertafter: "{{item.ia}}"
+      loop:
+        - ia: '^# alias ohmyzsh="mate ~/.oh-my-zsh"'
+          l: alias ll='ls -al'
+        - ia: '^# Add wisely, as too many plugins slow down shell startup.'
+          l: plugins=(git kubectl)
