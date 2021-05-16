@@ -1,0 +1,36 @@
+---
+# tasks file for zsh
+- when: ansible_os_family == "Debian"
+  block:
+    - name: "Update Os"
+      apt: 
+        name: '*'
+        state: present
+
+    - name: "Install apps for download and install"
+      apt:
+        name:
+          - git
+          - vim
+        state: present
+
+    - name: "Install the latest version of zsh"
+      git:
+        clone: yes
+        repo: "{{zsh_repo}}"
+        dest: "~/.oh-my-zsh"
+
+    - name: "Copy the template to the main directory"
+      copy:
+        src: "~/.oh-my-zsh/templates/zshrc.zsh-template"
+        dest: "~/.zshrc"
+
+    - name: "Change default shell"
+      cmd: chsh -s $(which zsh)
+      when: default_shell
+
+    - name: "Manage plugins"
+      lineinfile:
+        path: ~/.zshrc
+        line: plugins=(git kubectl) 
+        insertafter: '^# Add wisely, as too many plugins slow down shell startup.'
