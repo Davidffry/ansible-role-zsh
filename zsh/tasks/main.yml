@@ -19,6 +19,7 @@
         clone: yes
         repo: "{{zsh_repo}}"
         dest: "~/.oh-my-zsh"
+      ignore_errors: yes
 
     - name: "Copy the template to the main directory"
       copy:
@@ -26,16 +27,25 @@
         dest: "~/.zshrc"
 
     - name: "Change default shell"
-      cmd: chsh -s $(which zsh)
+      command: chsh -s $(which zsh)
       when: default_shell
 
-    - name: "Manage plugins"
+    - name: "Replace Plugins and themes"
+      lineinfile:
+        path: ~/.zshrc
+        line: "{{item.l}}"
+        regexp: "{{item.rp}}"
+      loop:
+        - l: "{{lookup('template','plugins.j2')}}"
+          rp: "^plugins.*"
+        - l: "ZSH_THEME='{{theme}}'"
+          rp: "^ZSH_THEME.*"
+
+    - name: "Add alias"
       lineinfile:
         path: ~/.zshrc
         line: "{{item.l}}" 
         insertafter: "{{item.ia}}"
       loop:
         - ia: '^# alias ohmyzsh="mate ~/.oh-my-zsh"'
-          l: alias ll='ls -al'
-        - ia: '^# Add wisely, as too many plugins slow down shell startup.'
-          l: plugins=(git kubectl)
+          l: "{{lookup('template','alias.j2')}}"

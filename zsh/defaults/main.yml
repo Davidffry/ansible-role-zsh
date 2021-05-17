@@ -1,2 +1,11 @@
 ---
 # defaults file for zsh
+theme: agnoster
+aliases:
+ - name: ll
+   value: 'ls -l' 
+ - name: lla
+   value: 'ls -al' 
+plugins:
+  - git
+  - kubectl
