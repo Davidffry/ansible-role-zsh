@@ -2,3 +2,4 @@
 # vars file for zsh
 zsh_repo: https://github.com/ohmyzsh/ohmyzsh.git
 default_shell: no
+path_dest: '~/.zshrc'

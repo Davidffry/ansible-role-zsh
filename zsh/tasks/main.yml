@@ -13,39 +13,50 @@
           - git
           - vim
         state: present
+- when: ansible_os_family == 'RedHat'
+  block:
+    - name: "Update Os"
+      yum:
+        name: '*'
+        state: 'latest'
+    - name: 'Installed git packages'
+      yum:
+        name:
+          - git
+        state: present
 
-    - name: "Install the latest version of zsh"
-      git:
-        clone: yes
-        repo: "{{zsh_repo}}"
-        dest: "~/.oh-my-zsh"
-      ignore_errors: yes
+- name: "Install the latest version of zsh"
+  git:
+    clone: yes
+    repo: "{{zsh_repo}}"
+    dest: "~/.oh-my-zsh"
+  ignore_errors: yes
 
-    - name: "Copy the template to the main directory"
-      copy:
-        src: "~/.oh-my-zsh/templates/zshrc.zsh-template"
-        dest: "~/.zshrc"
+- name: "Copy the template to the main directory"
+  copy:
+    src: "~/.oh-my-zsh/templates/zshrc.zsh-template"
+    dest: "{{path_dest}}"
 
-    - name: "Change default shell"
-      command: chsh -s $(which zsh)
-      when: default_shell
+- name: "Change default shell"
+  command: chsh -s $(which zsh)
+  when: default_shell
 
-    - name: "Replace Plugins and themes"
-      lineinfile:
-        path: ~/.zshrc
-        line: "{{item.l}}"
-        regexp: "{{item.rp}}"
-      loop:
-        - l: "{{lookup('template','plugins.j2')}}"
-          rp: "^plugins.*"
-        - l: "ZSH_THEME='{{theme}}'"
-          rp: "^ZSH_THEME.*"
+- name: "Replace Plugins and themes"
+  lineinfile:
+    path: "{{path_dest}}"
+    line: "{{item.l}}"
+    regexp: "{{item.rp}}"
+  loop:
+    - l: "{{lookup('template','plugins.j2')}}"
+      rp: "^plugins.*"
+    - l: "ZSH_THEME='{{theme}}'"
+      rp: "^ZSH_THEME.*"
 
-    - name: "Add alias"
-      lineinfile:
-        path: ~/.zshrc
-        line: "{{item.l}}" 
-        insertafter: "{{item.ia}}"
-      loop:
-        - ia: '^# alias ohmyzsh="mate ~/.oh-my-zsh"'
-          l: "{{lookup('template','alias.j2')}}"
+- name: "Add alias"
+  lineinfile:
+    path: ~/.zshrc
+    line: "{{item.l}}" 
+    insertafter: "{{item.ia}}"
+  loop:
+    - ia: '^# alias ohmyzsh="mate ~/.oh-my-zsh"'
+      l: "{{lookup('template','alias.j2')}}"
